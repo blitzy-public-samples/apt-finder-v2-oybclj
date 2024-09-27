@@ -1,0 +1,82 @@
+---
+- name: Deploy Apartment Finder Application
+  hosts: webservers
+  become: true
+  vars:
+    app_name: apartment_finder
+    app_version: "{{ lookup('env', 'APP_VERSION') }}"
+    docker_image: "{{ lookup('env', 'DOCKER_IMAGE') }}"
+    docker_tag: "{{ lookup('env', 'DOCKER_TAG') }}"
+
+  tasks:
+    - name: Pull the latest Docker image
+      docker_image:
+        name: "{{ docker_image }}"
+        tag: "{{ docker_tag }}"
+        source: pull
+
+    - name: Stop and remove the existing container
+      docker_container:
+        name: "{{ app_name }}"
+        state: absent
+
+    - name: Start the new container
+      docker_container:
+        name: "{{ app_name }}"
+        image: "{{ docker_image }}:{{ docker_tag }}"
+        state: started
+        restart_policy: always
+        ports:
+          - "80:8000"
+        env:
+          DATABASE_URL: "{{ lookup('env', 'DATABASE_URL') }}"
+          REDIS_URL: "{{ lookup('env', 'REDIS_URL') }}"
+          ZILLOW_API_KEY: "{{ lookup('env', 'ZILLOW_API_KEY') }}"
+          PAYPAL_CLIENT_ID: "{{ lookup('env', 'PAYPAL_CLIENT_ID') }}"
+          PAYPAL_CLIENT_SECRET: "{{ lookup('env', 'PAYPAL_CLIENT_SECRET') }}"
+
+    - name: Run database migrations
+      docker_container_exec:
+        container: "{{ app_name }}"
+        command: python manage.py migrate
+
+    - name: Collect static files
+      docker_container_exec:
+        container: "{{ app_name }}"
+        command: python manage.py collectstatic --noinput
+
+    - name: Restart Celery workers
+      docker_container_exec:
+        container: "{{ app_name }}"
+        command: supervisorctl restart celery
+
+    - name: Check if the application is responding
+      uri:
+        url: http://localhost/health
+        return_content: true
+      register: health_check
+      retries: 5
+      delay: 10
+
+    - name: Rollback if health check fails
+      docker_container:
+        name: "{{ app_name }}"
+        image: "{{ docker_image }}:{{ lookup('env', 'PREVIOUS_TAG') }}"
+        state: started
+        restart_policy: always
+        ports:
+          - "80:8000"
+        env:
+          DATABASE_URL: "{{ lookup('env', 'DATABASE_URL') }}"
+          REDIS_URL: "{{ lookup('env', 'REDIS_URL') }}"
+          ZILLOW_API_KEY: "{{ lookup('env', 'ZILLOW_API_KEY') }}"
+          PAYPAL_CLIENT_ID: "{{ lookup('env', 'PAYPAL_CLIENT_ID') }}"
+          PAYPAL_CLIENT_SECRET: "{{ lookup('env', 'PAYPAL_CLIENT_SECRET') }}"
+      when: health_check.status != 200
+
+# Human tasks (commented):
+# - Review and adjust environment variables and secrets management
+# - Verify the Docker image name and tag strategy
+# - Confirm the database migration and static file collection steps
+# - Review the health check endpoint and criteria
+# - Validate the rollback strategy and conditions
