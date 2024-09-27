@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-db-service
+  namespace: apartment-finder
+  labels:
+    app: apartment-finder
+    tier: database
+spec:
+  selector:
+    app: apartment-finder
+    tier: database
+  ports:
+    - port: 5432
+      targetPort: 5432
+  type: ClusterIP
+
+# Human Tasks:
+# TODO: Review and adjust the namespace if a different naming convention is preferred
+# TODO: Confirm that the port number (5432) matches the configured PostgreSQL port in the database deployment
+# TODO: Consider adding any necessary annotations for cloud provider-specific configurations
