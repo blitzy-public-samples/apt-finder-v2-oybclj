@@ -1,0 +1,32 @@
+"name": "apartment-finder-api",
+  "version": "1.0.0",
+  "description": "Package configuration file for the Apartment Finder API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "author": "Apartment Finder Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^6.0.12",
+    "dotenv": "^10.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "bcrypt": "^5.0.1",
+    "axios": "^0.24.0",
+    "redis": "^4.0.0",
+    "celery": "^0.3.16"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.14",
+    "eslint": "^8.1.0",
+    "jest": "^27.3.1",
+    "supertest": "^6.1.6"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
