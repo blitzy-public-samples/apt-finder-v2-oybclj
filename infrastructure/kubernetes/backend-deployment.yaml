@@ -1,0 +1,78 @@
+# infrastructure/kubernetes/backend-deployment.yaml
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apartment-finder-backend
+  labels:
+    app: apartment-finder
+    tier: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: apartment-finder
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: apartment-finder
+        tier: backend
+    spec:
+      containers:
+        - name: apartment-finder-backend
+          image: apartment-finder-backend:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: apartment-finder-secrets
+                  key: database-url
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: apartment-finder-secrets
+                  key: redis-url
+            - name: ZILLOW_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: apartment-finder-secrets
+                  key: zillow-api-key
+            - name: PAYPAL_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: apartment-finder-secrets
+                  key: paypal-client-id
+            - name: PAYPAL_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: apartment-finder-secrets
+                  key: paypal-client-secret
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+# Human tasks:
+# TODO: Review and adjust resource limits and requests based on actual application performance
+# TODO: Ensure all required secrets are created in the Kubernetes cluster before deploying
+# TODO: Verify the health and readiness probe endpoints are implemented in the backend application
+# TODO: Set up proper image versioning and update the image tag from 'latest' to a specific version
