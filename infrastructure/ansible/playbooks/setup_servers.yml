@@ -1,0 +1,71 @@
+---
+- hosts: all
+  become: true
+  vars:
+    app_user: apartmentfinder
+    app_group: apartmentfinder
+    app_directory: /opt/apartmentfinder
+
+  tasks:
+    - name: Update and upgrade apt packages
+      apt:
+        upgrade: yes
+        update_cache: yes
+
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - postgresql-client
+        state: latest
+
+    - name: Install Docker
+      include_role:
+        name: docker
+
+    - name: Create application user
+      user:
+        name: "{{ app_user }}"
+        group: "{{ app_group }}"
+        system: yes
+        shell: /bin/bash
+
+    - name: Create application directory
+      file:
+        path: "{{ app_directory }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_group }}"
+        mode: '0755'
+
+    - name: Install Python dependencies
+      pip:
+        requirements: "{{ app_directory }}/requirements.txt"
+        virtualenv: "{{ app_directory }}/venv"
+        virtualenv_python: python3
+
+    - name: Configure Nginx
+      include_role:
+        name: nginx
+
+    - name: Set up PostgreSQL client
+      include_role:
+        name: postgresql_client
+
+    - name: Configure Redis
+      include_role:
+        name: redis
+
+    - name: Set up monitoring tools
+      include_role:
+        name: monitoring
+
+# Human tasks:
+# TODO: Review and adjust the list of system packages to be installed
+# TODO: Provide the correct path to the requirements.txt file
+# TODO: Review and customize the roles included in the playbook
