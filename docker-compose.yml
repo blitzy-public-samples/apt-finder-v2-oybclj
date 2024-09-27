@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./src/api
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - MONGODB_URI
+      - REDIS_URL
+      - JWT_SECRET
+      - ZILLOW_API_KEY
+      - PAYPAL_CLIENT_ID
+      - PAYPAL_CLIENT_SECRET
+    depends_on:
+      - mongodb
+      - redis
+    volumes:
+      - ./src/api:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
+
+  backend:
+    build:
+      context: ./src/backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=apartment_finder.settings
+      - DATABASE_URL
+      - REDIS_URL
+      - SECRET_KEY
+      - ZILLOW_API_KEY
+      - PAYPAL_CLIENT_ID
+      - PAYPAL_CLIENT_SECRET
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./src/backend:/app
+
+  frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+      - backend
+
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=apartment_finder
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  mongodb:
+    image: mongo:4.4
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME
+      - MONGO_INITDB_ROOT_PASSWORD
+      - MONGO_INITDB_DATABASE=apartment_finder
+    volumes:
+      - mongodb_data:/data/db
+
+  redis:
+    image: redis:6-alpine
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+    description: Persistent volume for PostgreSQL data
+  mongodb_data:
+    description: Persistent volume for MongoDB data
+  redis_data:
+    description: Persistent volume for Redis data
+  node_modules:
+    description: Volume for Node.js modules to improve build performance
+
+# Human tasks:
+# - Ensure all required environment variables are properly set in a .env file or through a secure secrets management system
+# - Verify that the exposed ports do not conflict with any existing services on the host machine
+# - Implement proper logging configuration for each service
+# - Set up a reverse proxy (e.g., Nginx) to handle SSL termination and load balancing
+# - Configure health checks for each service to ensure proper orchestration
+# - Implement a backup strategy for the database volumes
+# - Set resource limits (CPU, memory) for each container to prevent resource exhaustion
