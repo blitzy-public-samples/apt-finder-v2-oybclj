@@ -1,0 +1,1 @@
+# It allows Django to discover and manage database migrations for the API application.
