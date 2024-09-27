@@ -1,0 +1,31 @@
+{
+  "short_name": "AptFinder",
+  "name": "Apartment Finder",
+  "description": "Find your perfect apartment with ease",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#4A90E2",
+  "background_color": "#F8F8F8"
+}
+
+// Human Tasks:
+// 1. Create and add logo192.png and logo512.png files to the public directory (Required)
+// 2. Verify that the favicon.ico file exists in the public directory (Required)
+// 3. Confirm that the color scheme matches the design specifications (Optional)
