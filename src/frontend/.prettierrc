@@ -1,0 +1,25 @@
+"printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": true,
+  "quoteProps": "as-needed",
+  "jsxSingleQuote": false,
+  "trailingComma": "es5",
+  "bracketSpacing": true,
+  "jsxBracketSameLine": false,
+  "arrowParens": "always",
+  "requirePragma": false,
+  "insertPragma": false,
+  "proseWrap": "preserve",
+  "htmlWhitespaceSensitivity": "css",
+  "endOfLine": "lf"
+}
+```
+
+Human Tasks:
+```
+// Human Tasks:
+// 1. Review and adjust Prettier configuration based on team preferences
+// 2. Ensure all frontend developers have Prettier plugin installed in their IDEs
+// 3. Set up a pre-commit hook to run Prettier on staged files
