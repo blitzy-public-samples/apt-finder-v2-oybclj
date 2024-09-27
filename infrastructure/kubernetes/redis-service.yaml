@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  labels:
+    app: apartment-finder
+    tier: cache
+spec:
+  selector:
+    app: apartment-finder
+    tier: cache
+  ports:
+    - port: 6379
+      targetPort: 6379
+  clusterIP: None
+
+# Human Tasks:
+# TODO: Review and adjust Redis service configuration based on specific deployment requirements
+# TODO: Ensure Redis deployment or StatefulSet is created to work with this service
