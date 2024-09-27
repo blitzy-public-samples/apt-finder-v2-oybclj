@@ -1,0 +1,40 @@
+# Alertmanager configuration for Apartment Finder web service
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: 'smtp.example.com:587'
+  smtp_from: 'alertmanager@apartmentfinder.com'
+  smtp_auth_username: 'alertmanager@apartmentfinder.com'
+  smtp_auth_password: '{{ smtp_password }}'
+
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 3h
+  receiver: 'team-emails'
+
+receivers:
+  - name: 'team-emails'
+    email_configs:
+      - to: 'team@apartmentfinder.com'
+        send_resolved: true
+
+  - name: 'pager'
+    pagerduty_configs:
+      - service_key: '{{ pagerduty_service_key }}'
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'cluster', 'service']
+
+# Human tasks:
+# TODO: Replace smtp.example.com with the actual SMTP server address
+# TODO: Set up and configure the SMTP server for sending alert emails
+# TODO: Replace {{ smtp_password }} with the actual SMTP password using secure secret management
+# TODO: Update team@apartmentfinder.com with the actual team email address
+# TODO: Set up a PagerDuty account and replace {{ pagerduty_service_key }} with the actual service key
+# TODO: Review and adjust alert grouping and timing settings based on team preferences and response capabilities
+# TODO: Implement secure secret management for sensitive values (SMTP password, PagerDuty service key)
