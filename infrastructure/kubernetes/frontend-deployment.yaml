@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: apartment-finder
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: apartment-finder
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: apartment-finder
+        tier: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: apartment-finder-frontend:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: REACT_APP_API_URL
+          value: "http://backend-service:8000"
+        - name: REACT_APP_ZILLOW_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: zillow-api-secret
+              key: api-key
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+# Human tasks:
+# - Review and adjust resource limits based on actual frontend performance metrics
+# - Ensure the Zillow API key secret is created in the Kubernetes cluster
+# - Verify the backend service name and port
