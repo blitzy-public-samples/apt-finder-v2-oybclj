@@ -1,0 +1,41 @@
+:root {
+  /* Colors */
+  --color-primary: #4A90E2;
+  --color-primary-dark: #3A7BC8;
+  --color-secondary: #50E3C2;
+  --color-accent: #F5A623;
+  --color-background: #F8F8F8;
+  --color-text: #333333;
+  --color-white: #FFFFFF;
+
+  /* Typography */
+  --font-family-base: 'Open Sans', sans-serif;
+  --font-family-heading: 'Roboto', sans-serif;
+  --font-size-base: 16px;
+  --font-size-sm: 14px;
+  --font-size-lg: 18px;
+  --font-size-xl: 24px;
+  --font-size-xxl: 32px;
+  --line-height-base: 1.5;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+
+  /* Other */
+  --border-radius: 4px;
+  --container-max-width: 1200px;
+  --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Human Tasks */
+/*
+TODO: Review and adjust color variables to ensure they match the exact brand colors for the Apartment Finder application
+TODO: Confirm that the chosen font families (Open Sans and Roboto) are the correct choices for the application, and ensure they are properly imported in the project
+TODO: Validate that the spacing and sizing variables provide an appropriate scale for the application's design
+TODO: Consider adding additional variables for different button states (e.g., hover, active, disabled)
+TODO: Evaluate the need for additional color variables for success, warning, and error states
+*/
