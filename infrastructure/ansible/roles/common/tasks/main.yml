@@ -1,0 +1,68 @@
+---
+# infrastructure/ansible/roles/common/tasks/main.yml
+
+# Update apt cache
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+# Upgrade all packages
+- name: Upgrade all packages
+  apt:
+    upgrade: safe
+
+# Install common packages
+- name: Install common packages
+  apt:
+    name:
+      - curl
+      - wget
+      - vim
+      - htop
+      - ntp
+      - ufw
+      - fail2ban
+      - unattended-upgrades
+    state: present
+
+# Configure timezone
+- name: Configure timezone
+  timezone:
+    name: UTC
+
+# Enable UFW
+- name: Enable UFW
+  ufw:
+    state: enabled
+    policy: deny
+
+# Allow SSH through UFW
+- name: Allow SSH through UFW
+  ufw:
+    rule: allow
+    port: '22'
+
+# Configure fail2ban
+- name: Configure fail2ban
+  copy:
+    content: "{{ lookup('file', 'files/jail.local') }}"
+    dest: /etc/fail2ban/jail.local
+
+# Enable and start fail2ban
+- name: Enable and start fail2ban
+  systemd:
+    name: fail2ban
+    enabled: yes
+    state: started
+
+# Configure unattended-upgrades
+- name: Configure unattended-upgrades
+  template:
+    src: templates/20auto-upgrades.j2
+    dest: /etc/apt/apt.conf.d/20auto-upgrades
+
+# Human tasks (commented)
+# TODO: Review and adjust the list of common packages to be installed
+# TODO: Create the fail2ban configuration file (jail.local) in the 'files' directory
+# TODO: Create the unattended-upgrades configuration template (20auto-upgrades.j2) in the 'templates' directory
