@@ -1,0 +1,75 @@
+name: Continuous Deployment
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  DOCKER_REPO: your-docker-repo
+  K8S_CLUSTER: your-k8s-cluster
+
+jobs:
+  deploy:
+    name: Deploy Apartment Finder
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          npm test
+          pytest
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build backend
+        run: python manage.py collectstatic --noinput
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.DOCKER_REPO }}/apartment-finder-frontend:${{ github.sha }}
+            ${{ env.DOCKER_REPO }}/apartment-finder-backend:${{ github.sha }}
+
+      - name: Deploy to Kubernetes cluster
+        run: |
+          echo "${{ secrets.KUBECONFIG }}" > kubeconfig
+          export KUBECONFIG=./kubeconfig
+          kubectl set image deployment/frontend frontend=${{ env.DOCKER_REPO }}/apartment-finder-frontend:${{ github.sha }}
+          kubectl set image deployment/backend backend=${{ env.DOCKER_REPO }}/apartment-finder-backend:${{ github.sha }}
+          kubectl rollout status deployment/frontend
+          kubectl rollout status deployment/backend
+
+# Human tasks:
+# - Add secrets for Docker Hub credentials and Kubernetes configuration
+# - Configure Kubernetes cluster details and deployment scripts
+# - Set up monitoring and alerting for the CD pipeline
