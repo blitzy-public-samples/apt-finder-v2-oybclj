@@ -1,0 +1,52 @@
+*.py[cod]
+__pycache__/
+*.so
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# React
+build/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Docker
+*.env
+
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# Ansible
+*.retry
+
+# Other
+*.bak
+*.tmp
+*.temp
+
+# Human Tasks:
+# TODO: Review and adjust .gitignore entries based on specific project needs
