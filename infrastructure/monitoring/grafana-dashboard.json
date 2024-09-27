@@ -1,0 +1,185 @@
+"dashboard": {
+    "id": null,
+    "uid": null,
+    "title": "Apartment Finder Monitoring Dashboard",
+    "tags": ["apartment-finder", "monitoring"],
+    "timezone": "browser",
+    "schemaVersion": 22,
+    "version": 1,
+    "refresh": "5s",
+    "panels": [
+      {
+        "title": "System Overview",
+        "type": "row",
+        "collapsed": false,
+        "panels": [
+          {
+            "title": "CPU Usage",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "100 - (avg by(instance) (rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+                "legendFormat": "{{instance}}"
+              }
+            ]
+          },
+          {
+            "title": "Memory Usage",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "100 * (1 - ((node_memory_MemAvailable_bytes{} or node_memory_Buffers_bytes{} + node_memory_Cached_bytes{} + node_memory_MemFree_bytes{}) / node_memory_MemTotal_bytes{}))",
+                "legendFormat": "{{instance}}"
+              }
+            ]
+          },
+          {
+            "title": "Disk Usage",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "100 - ((node_filesystem_avail_bytes{mountpoint=\"/\"} * 100) / node_filesystem_size_bytes{mountpoint=\"/\"})",
+                "legendFormat": "{{instance}}"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Application Metrics",
+        "type": "row",
+        "collapsed": false,
+        "panels": [
+          {
+            "title": "HTTP Request Rate",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "sum(rate(http_requests_total[5m])) by (status)",
+                "legendFormat": "{{status}}"
+              }
+            ]
+          },
+          {
+            "title": "Response Time",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le))",
+                "legendFormat": "95th percentile"
+              }
+            ]
+          },
+          {
+            "title": "Active Users",
+            "type": "gauge",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "sum(active_users)"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Database Metrics",
+        "type": "row",
+        "collapsed": false,
+        "panels": [
+          {
+            "title": "PostgreSQL Connections",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "pg_stat_activity_count",
+                "legendFormat": "Active Connections"
+              }
+            ]
+          },
+          {
+            "title": "PostgreSQL Query Duration",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "rate(pg_stat_activity_max_tx_duration[5m])",
+                "legendFormat": "Max Transaction Duration"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Redis Metrics",
+        "type": "row",
+        "collapsed": false,
+        "panels": [
+          {
+            "title": "Redis Memory Usage",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "redis_memory_used_bytes",
+                "legendFormat": "Memory Used"
+              }
+            ]
+          },
+          {
+            "title": "Redis Connected Clients",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "redis_connected_clients",
+                "legendFormat": "Connected Clients"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "title": "External Services",
+        "type": "row",
+        "collapsed": false,
+        "panels": [
+          {
+            "title": "Zillow API Response Time",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, sum(rate(zillow_api_request_duration_seconds_bucket[5m])) by (le))",
+                "legendFormat": "95th percentile"
+              }
+            ]
+          },
+          {
+            "title": "PayPal API Response Time",
+            "type": "graph",
+            "datasource": "Prometheus",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, sum(rate(paypal_api_request_duration_seconds_bucket[5m])) by (le))",
+                "legendFormat": "95th percentile"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+// Human Tasks:
+// 1. Review and adjust the Grafana dashboard configuration based on specific monitoring needs and available metrics
+// 2. Ensure that all referenced Prometheus metrics are actually being collected and available
+// 3. Add any additional panels or metrics that may be specific to the Apartment Finder application
+// 4. Set up alerting rules based on the metrics displayed in this dashboard
